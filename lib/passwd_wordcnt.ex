@@ -1,7 +1,4 @@
 defmodule PasswdWordcnt do
-  # PasswdWordcnt.benchmark("priv/test-pws.txt", "priv/test-words.txt")
-  # PasswdWordcnt.benchmark("priv/bruteforce-database/38650-password-sktorrent.txt", "priv/999-common-words.txt")
-  # PasswdWordcnt.benchmark("priv/bruteforce-database/2151220-passwords.txt", "priv/999-common-words.txt")
 
   def benchmark(pw_file, word_file) do
     start_time = :os.system_time(:seconds)
@@ -10,21 +7,21 @@ defmodule PasswdWordcnt do
   end
 
   def run(pw_file, word_file) do
-    File.stream!(word_file)
+    File.stream!(word_file, read_ahead: 100_000)
     |> Enum.flat_map(&tidy/1)
     |> Enum.map(&cnt_word(&1, pw_file))
     |> Enum.group_by(&elem(&1, 1))
-    |> Enum.sort_by(&elem(&1, 0), &>=/2)
     |> Enum.map(fn {word_length, words} ->
       Enum.sort_by(words, &elem(&1, 2), &>=/2)
       |> Enum.take(5)
       |> (&{word_length, &1}).()
     end)
+    |> Enum.sort_by(&elem(&1, 0), &>=/2)
     |> show_result()
   end
 
   defp cnt_word(word, pw_file) do
-    File.stream!(pw_file)
+    File.stream!(pw_file, read_ahead: 100_000)
     |> Enum.flat_map(&tidy/1)
     |> Enum.map(&pw_containing(&1, word))
     |> Enum.reduce(0, &+/2)

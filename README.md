@@ -12,7 +12,7 @@ cd this_repo
 mix deps.get
 iex -S mix
 
-PasswdWordcnt.benchmark("priv/test-pws.txt", "priv/test-words.txt")
+PasswdWordcnt.run("priv/test-pws.txt", "priv/test-words.txt")
 ^C^C
 
 cd priv
