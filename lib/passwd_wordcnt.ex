@@ -8,14 +8,17 @@ defmodule PasswdWordcnt do
 
   def run(pw_file, word_file) do
     File.stream!(word_file, read_ahead: 100_000)
-    |> Enum.flat_map(&tidy/1)
-    |> Enum.map(&cnt_word(&1, pw_file))
-    |> Enum.group_by(&elem(&1, 1))
-    |> Enum.map(fn {word_length, words} ->
+    |> Flow.from_enumerable()
+    |> Flow.partition()
+    |> Flow.flat_map(&tidy/1)
+    |> Flow.map(&cnt_word(&1, pw_file))
+    |> Flow.group_by(&elem(&1, 1))
+    |> Flow.map(fn {word_length, words} ->
       Enum.sort_by(words, &elem(&1, 2), &>=/2)
       |> Enum.take(5)
       |> (&{word_length, &1}).()
     end)
+    |> Enum.to_list()
     |> Enum.sort_by(&elem(&1, 0), &>=/2)
     |> show_result()
   end
