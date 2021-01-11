@@ -16,10 +16,9 @@ defmodule PasswdWordcnt do
   end
 
   defp word_cnts(passwds, common_words_file) do
-    File.read!(common_words_file)
-    |> String.split("\n")
-    |> Enum.flat_map(&tidy/1)
-    |> Enum.map(&passwds_containing_cnt(&1, passwds))
+    File.stream!(common_words_file)
+    |> Stream.flat_map(&tidy/1)
+    |> Stream.map(&passwds_containing_cnt(&1, passwds))
   end
 
   defp passwds_containing_cnt(word, passwds) do
