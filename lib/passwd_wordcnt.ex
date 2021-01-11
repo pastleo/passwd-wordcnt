@@ -17,8 +17,10 @@ defmodule PasswdWordcnt do
 
   defp word_cnts(passwds, common_words_file) do
     File.stream!(common_words_file)
-    |> Stream.flat_map(&tidy/1)
-    |> Stream.map(&passwds_containing_cnt(&1, passwds))
+    |> Flow.from_enumerable()
+    |> Flow.partition()
+    |> Flow.flat_map(&tidy/1)
+    |> Flow.map(&passwds_containing_cnt(&1, passwds))
   end
 
   defp passwds_containing_cnt(word, passwds) do
