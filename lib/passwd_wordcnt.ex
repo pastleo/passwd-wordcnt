@@ -16,9 +16,22 @@ defmodule PasswdWordcnt do
   end
 
   defp word_cnts(passwds, common_words_file) do
-    IO.inspect(passwds)
+    File.read!(common_words_file)
+    |> String.split("\n")
+    |> Enum.flat_map(&tidy/1)
+    |> Enum.map(&passwds_containing_cnt(&1, passwds))
+  end
 
-    []
+  defp passwds_containing_cnt(word, passwds) do
+    Enum.reduce(passwds, 0, fn pw, cnt ->
+      String.contains?(pw, word)
+      |> case do
+        true -> cnt + 1
+        false -> cnt
+      end
+    end)
+    |> inspect_status(word)
+    |> (&{word, &1}).()
   end
 
   defp tidy(""), do: []
